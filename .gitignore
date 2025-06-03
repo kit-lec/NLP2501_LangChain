@@ -7,6 +7,7 @@ env/
 *.db
 download/**
 .cache_bkup
+model.json
 movies.sqlite
 
 # fast api
