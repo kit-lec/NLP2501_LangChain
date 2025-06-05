@@ -114,3 +114,52 @@ num = st.number_input(
     step=5,
 )
 st.write('입력한 나이는: ', num)
+
+
+# ------------------------------
+#  파일 업로드
+
+import time
+import pandas as pd
+
+# 파일 업로더 위젯
+st.markdown('---')
+st.title('파일 업로드:sparkles:')
+
+# ----------------------------------------------
+# st.file_uploader() => None | UploadedFile | list of UploadedFile 리턴
+# 파일 업로드 버튼 (업로드 기능)
+
+file = st.file_uploader(
+    label="파일 선택(csv or excel)",
+    type=['csv', 'xls', 'xlsx'],
+)
+
+time.sleep(2)
+
+if file is not None:
+    ext = file.name.split('.')[-1]  # 확장자 가져오기
+    if ext == 'csv':
+        df = pd.read_csv(file)
+        st.dataframe(df)
+
+    elif 'xls' in ext:   # 'xls' 혹은 'xlsx'
+        df = pd.read_excel(file, engine='openpyxl')
+        st.dataframe(df)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
