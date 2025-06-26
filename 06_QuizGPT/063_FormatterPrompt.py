@@ -15,24 +15,12 @@ from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_community.retrievers.wikipedia import WikipediaRetriever
 
 from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-import json
-from langchain_core.output_parsers.base import BaseOutputParser
 
 import streamlit as st
 
 # ────────────────────────────────────────
 # 🎃 LLM 로직
 # ────────────────────────────────────────
-
-class JsonOutputParser(BaseOutputParser):
-    # text <- LLM 의 호출결과가 전달될거다
-    def parse(self, text):  
-        # 앞, 뒤의 문자열 제거
-        text = text.replace("```", "").replace("json", "")
-        # 파이썬 객체 <- JSON
-        return json.loads(text)
-
-output_parser = JsonOutputParser()
 
 llm = ChatOpenAI(
     temperature=0.1,
@@ -297,19 +285,18 @@ Get started by uploading a file or searching on Wikipedia in the sidebar.
     )
 else:
     
+
     # ↓ 버튼을 누르면 quiz 가 생성되게 해보기
     start = st.button("Generate Quiz")
     if start:
-        # questions_response = question_chain.invoke(docs)
-        # formatting_response = formatting_chain.invoke({
-        #     "context": questions_response.content,
-        # })
+        questions_response = question_chain.invoke(docs)
+        st.write(questions_response.content)  # 확인용
 
-        # 위 체인을 아래와 같이 단순화 할수도 있을것이다.
-        chain = {"context": question_chain} | formatting_chain | output_parser
-        response = chain.invoke(docs)
-        st.write(response)  # 확인용!
-        
+        formatting_response = formatting_chain.invoke({
+            "context": questions_response.content,
+        })
+
+        st.write(formatting_response.content)  # 확인용.
 
 
 
