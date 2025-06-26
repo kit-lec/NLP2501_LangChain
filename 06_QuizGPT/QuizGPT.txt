@@ -1,0 +1,18 @@
+[Quiz GPT 프로젝트 주제]
+
+- LLM 이 '우리에게' 주어진 데이터와 내용과 관련된 '질문'을 하게끔 명령
+
+- 주어진 데이터는 두가지 형태중 선택
+    1. 파일
+    2. Wikipedia Retriever
+
+- OutputParser
+    LLM 에게 '특정 형식' 으로 답을 하도록 '강제' 하기.
+    결괏값에 대한 '특정한 구조'를 정의 -> 예시들(example) 을 제공.
+
+- Function Calling 
+    OpenAI 모델에서 제공되는 기능
+    '우리가 만든 함수'를 모델에 설명해줄수 있다.
+    LLM이 답변하는것 뿐 아니라,  위 함수를 호출할수 있게 된다! => agent
+
+- Streamlit 의 Form 

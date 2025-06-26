@@ -16,49 +16,14 @@ from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_openai.chat_models.base import ChatOpenAI
 from langchain_core.runnables.base import RunnableLambda
 from langchain_core.runnables.passthrough import RunnablePassthrough
-# LangChain 의 context 안에 있는 callback handler 는
-# 기본적으로 LLM 의 event 를 listen 하는 class 다. 가령.
-# ex) LLM 이 무언가를 만들기 시작할때,  작업을 끝낼 때,  LLM 이 글자를 생성하거나,  
-#     streaming 할때, LLM 에 에러가 발생할때.. 등등
-# callback handler 를 사용하여 log 를 작성하거나 analytics 등으로 보내는 등의 유용한 동작을 구현해볼수 있다.
-
-from langchain_core.callbacks.base import BaseCallbackHandler  # 이를 상속하여 CallbackHandler 구현
 
 import streamlit as st
 
 # ────────────────────────────────────────
 # 🎃 LLM 로직
 # ────────────────────────────────────────
-
-class ChatCallbackHandler(BaseCallbackHandler):
-    # CallbackHandler 는 event 들을 listen 하는 여러 함수들이 있다.
-    # on_xxx() 으로 시작하는 함수들을 오버라이딩 하여 구현한다
-    #    ex) LLM 상에서 발생한 event 를 다루는 함수들
-    #       chain, retriever, 혹은 agent 에 대한 함수들도 있다.
-    #    이벤트핸들러 함수 참조: https://python.langchain.com/api_reference/core/callbacks/langchain_core.callbacks.base.BaseCallbackHandler.html#langchain_core.callbacks.base.BaseCallbackHandler
-    
-    # ↓ on_llm_start() : LLM 작업 시작할때 호출
-    #   많은 argument 들이 있지만 이번예제에선 걍 *args, **kwargs 로 받아낸다.  
-    def on_llm_start(self, *args, **kwargs):
-        ...
-
-    # ↓ on_llm_end() : LLM 작업 종료할때 호출
-    def on_llm_end(self, *args, **kwargs):
-        ...
-
-    # ↓ on_llm_new_token() : LLM이 생성해내는 새로운 token 마다 호출
-    def on_llm_new_token(self, token, *args, **kwargs):
-        ...
-
-
 llm = ChatOpenAI(
-    temperature=0.1,
-    streaming=True,
-
-    # callback 추가. 이를 통해 LLM에서 어떤 event 들이 일어나는지 알수 있다.
-    callbacks=[
-        ChatCallbackHandler(),
-    ],
+    temperature=0.1
 )
 
 # retriever 의 결과(List[Document])를 받아 원하는 포맷(str)으로 리턴해주는 함수
