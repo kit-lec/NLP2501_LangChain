@@ -307,20 +307,34 @@ else:
 
     response = run_quiz_chain(docs, topic if topic else file.name)
 
+    # form 작성
+    #   key= : 페이지 내의 form 식별자.
     with st.form(key="questions_form"):
         for question in response['questions']:
-
+            # 일단 질문만 출력
             st.write(question['question'])
-
+            # 사지선다 항목 출력
             value = st.radio(label="Select an option", 
                      options=[answer['answer'] for answer in question['answers']],
-                     index=None)
+                     index=None)  # 디폴트 체크 제거
+            
+            # st.write(value) # 확인용
+            # st.success(value)  # alert 표시 확인용
+            # st.error(value)
+
+            # answer 들을 출력해보자
+            # st.json(question['answers'])  # object -> JSON 출력
+            # st.json({"answer": value, "correct": True,})
+
+            # 정답 판정
+            # st.write({"answer": value, "correct": True,} in question['answers'])
 
             if {"answer": value, "correct": True,} in question['answers']:
                 st.success("Correct!")
             elif value is not None:
                 st.error("Wrong!")
 
+        # form '안' 에 submit 버튼이 필요하다
         button = st.form_submit_button()
         
 

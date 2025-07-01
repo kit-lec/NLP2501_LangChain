@@ -244,11 +244,15 @@ def split_file(file):
     docs = loader.load_and_split(text_splitter=splitter)    
     return docs
 
+# quiz 생성 체인을 cachce한다.  documents 가 변하지 않으면 재실행 안하기
 @st.cache_resource(show_spinner="Making Quiz...")
+# streamlit 이 hash 하지 않도록 매개변수에 _ 로 시작
+# 대신 topic 이라는 매개변수가 변경되면 함수 실행하도록 하자.
 def run_quiz_chain(_docs, topic):
     chain = {"context": question_chain} | formatting_chain | output_parser
     return chain.invoke(_docs)
 
+# wikipedia 검색도 cache (이 또한 시간많이 걸리는 작업이다)
 @st.cache_resource(show_spinner="Searching Wikipedia...")
 def wiki_search(term):
     retriever = WikipediaRetriever(top_k_results=5)
@@ -304,24 +308,15 @@ Get started by uploading a file or searching on Wikipedia in the sidebar.
     """
     )
 else:
+    
+    start = st.button("Generate Quiz")
+    if start:         
+        # 두번째 매개변수에 hash 가능한 값 전달.
+        # topic 이 있는 경우 (wiki검색) topic 을.  아닌 경우 파일명을 사용!
 
-    response = run_quiz_chain(docs, topic if topic else file.name)
-
-    with st.form(key="questions_form"):
-        for question in response['questions']:
-
-            st.write(question['question'])
-
-            value = st.radio(label="Select an option", 
-                     options=[answer['answer'] for answer in question['answers']],
-                     index=None)
-
-            if {"answer": value, "correct": True,} in question['answers']:
-                st.success("Correct!")
-            elif value is not None:
-                st.error("Wrong!")
-
-        button = st.form_submit_button()
+        response = run_quiz_chain(docs, topic if topic else file.name)
+        st.write(response)  # 확인용
+        
         
 
 

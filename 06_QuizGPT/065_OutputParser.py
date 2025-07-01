@@ -244,16 +244,6 @@ def split_file(file):
     docs = loader.load_and_split(text_splitter=splitter)    
     return docs
 
-@st.cache_resource(show_spinner="Making Quiz...")
-def run_quiz_chain(_docs, topic):
-    chain = {"context": question_chain} | formatting_chain | output_parser
-    return chain.invoke(_docs)
-
-@st.cache_resource(show_spinner="Searching Wikipedia...")
-def wiki_search(term):
-    retriever = WikipediaRetriever(top_k_results=5)
-    docs = retriever.invoke(term)    
-    return docs
 
 
 # ────────────────────────────────────────
@@ -269,7 +259,6 @@ st.title("QuizGPT")
 
 with st.sidebar:
     docs = None  # 읽어들인 문서들
-    topic = None 
 
     choice = st.selectbox(
         label="Choose what you want to use.",
@@ -289,7 +278,10 @@ with st.sidebar:
     else:
         topic = st.text_input("Search Wikipedia...")
         if topic:
-            docs = wiki_search(topic)
+            retriever = WikipediaRetriever(top_k_results=5)
+
+            with st.status("Searching Wikipedia..."):
+                docs = retriever.invoke(topic)
 
 
 # 문서(docs) 가 존재한다면
@@ -304,24 +296,19 @@ Get started by uploading a file or searching on Wikipedia in the sidebar.
     """
     )
 else:
+    
+    # ↓ 버튼을 누르면 quiz 가 생성되게 해보기
+    start = st.button("Generate Quiz")
+    if start:
+        # questions_response = question_chain.invoke(docs)
+        # formatting_response = formatting_chain.invoke({
+        #     "context": questions_response.content,
+        # })
 
-    response = run_quiz_chain(docs, topic if topic else file.name)
-
-    with st.form(key="questions_form"):
-        for question in response['questions']:
-
-            st.write(question['question'])
-
-            value = st.radio(label="Select an option", 
-                     options=[answer['answer'] for answer in question['answers']],
-                     index=None)
-
-            if {"answer": value, "correct": True,} in question['answers']:
-                st.success("Correct!")
-            elif value is not None:
-                st.error("Wrong!")
-
-        button = st.form_submit_button()
+        # 위 체인을 아래와 같이 단순화 할수도 있을것이다.
+        chain = {"context": question_chain} | formatting_chain | output_parser
+        response = chain.invoke(docs)
+        st.write(response)  # 확인용!
         
 
 
